@@ -101,35 +101,33 @@ export default class Uploader extends Component {
     handleFile(file, cb) {
         let reader;
         if (typeof FileReader !== 'undefined') {
-           reader = new FileReader();
+            reader = new FileReader();
         } else {
-           if (window.FileReader) reader = new window.FileReader();
+            if (window.FileReader) reader = new window.FileReader();
         }
 
         reader.onload = e => {
             let img;
             if (typeof Image !== 'undefined') {
-               img = new Image();
+                img = new Image();
             } else {
-               if (window.Image) img = new window.Image();
+                if (window.Image) img = new window.Image();
             }
-            img.onload = ()=>{
+            img.onload = () => {
                 let w = Math.min(this.props.maxWidth, img.width);
                 let h = img.height * (w / img.width);
                 let canvas = document.createElement('canvas');
                 let ctx = canvas.getContext('2d');
 
                 //check canvas support, for test
-                if (ctx){
+                if (ctx) {
                     //patch subsampling bug
                     //http://jsfiddle.net/gWY2a/24/
                     let drawImage = ctx.drawImage;
-                    ctx.drawImage = (_img, sx, sy, sw, sh, dx, dy, dw, dh) =>
-                    {
+                    ctx.drawImage = (_img, sx, sy, sw, sh, dx, dy, dw, dh) => {
                         let vertSquashRatio = 1;
                         // Detect if img param is indeed image
-                        if (!!_img && _img.nodeName === 'IMG')
-                        {
+                        if (!!_img && _img.nodeName === 'IMG') {
                             vertSquashRatio = this.detectVerticalSquash(_img);
                             if (typeof sw === 'undefined') (sw = _img.naturalWidth);
                             if (typeof sh === 'undefined') (sh = _img.naturalHeight);
@@ -175,7 +173,7 @@ export default class Uploader extends Component {
 
         if (_files.length === 0) return;
 
-        if (this.props.files.length >= this.props.maxCount) {
+        if (this.props.files.length >= this.props.maxCount || (this.props.multiple && _files.length + this.props.files.length > this.props.maxCount)) {
             this.props.onError(langs.maxError(this.props.maxCount));
             return;
         }
@@ -184,16 +182,16 @@ export default class Uploader extends Component {
             if (!_files.hasOwnProperty(key)) continue;
             let file = _files[key];
 
-            this.handleFile(file, (_file, _e)=>{
+            this.handleFile(file, (_file, _e) => {
                 if (this.props.onChange) this.props.onChange(_file, _e);
                 ReactDOM.findDOMNode(this.refs.uploader).value = '';
             }, e);
         }
     }
 
-    renderFiles(){
-        return this.props.files.map((file, idx)=>{
-            let {url, error, status, onClick, ...others} = file;
+    renderFiles() {
+        return this.props.files.map((file, idx) => {
+            let { url, error, status, onClick, ...others } = file;
             let fileStyle = {
                 backgroundImage: `url(${url})`
             };
@@ -202,7 +200,7 @@ export default class Uploader extends Component {
                 'weui-uploader__file_status': error || status
             });
 
-            if (onClick){
+            if (onClick) {
                 deprecationWarning('File onClick', 'Uploader onFileClick');
             }
 
@@ -214,17 +212,17 @@ export default class Uploader extends Component {
                 <li className={cls} key={idx} style={fileStyle} onClick={handleFileClick} {...others}>
                     {
                         error || status ?
-                        <div className="weui-uploader__file-content">
-                            { error ? <Icon value="warn" /> : status }
-                        </div>
-                        : false
+                            <div className="weui-uploader__file-content">
+                                {error ? <Icon value="warn" /> : status}
+                            </div>
+                            : false
                     }
                 </li>
             );
         });
     }
 
-    render(){
+    render() {
         const { className, title, maxCount, files, onChange, onFileClick, ...others } = this.props;
         const inputProps = Object.assign({}, others);
         delete inputProps.lang;
@@ -248,13 +246,13 @@ export default class Uploader extends Component {
                     </ul>
                     <div className="weui-uploader__input-box">
                         <input
-                        ref="uploader"//let react to reset after onchange
-                        className="weui-uploader__input"
-                        type="file"
-                        accept="image/*"
-                        capture="camera"
-                        onChange={this.handleChange.bind(this)}
-                        {...inputProps}
+                            ref="uploader"//let react to reset after onchange
+                            className="weui-uploader__input"
+                            type="file"
+                            accept="image/*"
+                            capture="camera"
+                            onChange={this.handleChange.bind(this)}
+                            {...inputProps}
                         />
                     </div>
                 </div>
